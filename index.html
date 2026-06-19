@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rise of the Loong</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700&display=swap');
+
+        body {
+            background: #020205;
+            color: #ebd3ff;
+            font-family: 'Cinzel', 'Georgia', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle inside, transparent 40%, rgba(2, 2, 5, 0.98) 100%),
+                        url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.04"/%3E%3C/svg%3E');
+            animation: drift 90s linear infinite;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(-25%, -25%) rotate(0deg); }
+            100% { transform: translate(-25%, -25%) rotate(360deg); }
+        }
+
+        .game-wrapper {
+            position: relative;
+            background: linear-gradient(135deg, rgba(26, 9, 9, 0.85) 0%, rgba(5, 2, 10, 0.98) 100%);
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #d4af37;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.15), inset 0 0 30px rgba(0,0,0,0.9);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .shake {
+            animation: shakeFX 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shakeFX {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        #score-board {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #d4af37;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+        }
+
+        canvas {
+            background-color: #040207;
+            display: block;
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            max-width: 90vw;
+            max-height: 90vw;
+        }
+
+        .screen-overlay {
+            position: absolute;
+            top: 20px; left: 20px;
+            right: 20px; bottom: 20px;
+            border-radius: 10px;
+            background: rgba(4, 2, 7, 0.96);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+
+        #main-menu, #restart-menu {
+            height: 440px;
+            width: 440px;
+        }
+
+        @media (max-width: 480px) {
+            #main-menu, #restart-menu {
+                width: calc(100% - 40px);
+                height: calc(100% - 40px);
+            }
+        }
+
+        .hidden { display: none !important; }
+
+        h1 {
+            font-family: 'Cinzel Decorative', serif;
+            color: #cc2929;
+            margin: 0 0 15px 0;
+            font-size: 2.2rem;
+            letter-spacing: 3px;
+            text-shadow: 0 0 25px rgba(204, 41, 41, 0.6);
+            text-align: center;
+        }
+
+        h2 {
+            font-family: 'Cinzel Decorative', serif;
+            color: #8a1c1c;
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+            text-shadow: 0 0 15px rgba(204, 41, 41, 0.3);
+        }
+
+        .final-score {
+            font-size: 1.1rem;
+            color: #d4af37;
+            margin-bottom: 35px;
+            letter-spacing: 1px;
+        }
+
+        .btn {
+            background: transparent;
+            color: #d4af37;
+            border: 2px solid #d4af37;
+            padding: 14px 40px;
+            font-size: 1rem;
+            font-family: inherit;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+        }
+
+        .btn:hover {
+            background: #d4af37;
+            color: #040207;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+        }
+
+        .instructions {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #bfa473;
+            text-align: center;
+            line-height: 1.5;
+            letter-spacing: 1px;
+        }
+
+        .mobile-controls {
+            display: none;
+            grid-template-areas: 
+                ".    up    ."
+                "left .     right"
+                ".    down  .";
+            grid-gap: 8px;
+            margin-top: 20px;
+            width: 180px;
+            height: 180px;
+            z-index: 5;
+        }
+
+        @media (pointer: coarse) {
+            .mobile-controls {
+                display: grid;
+            }
+        }
+
+        .dpad-btn {
+            background: rgba(212, 175, 55, 0.05);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            color: #d4af37;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transition: background 0.1s, transform 0.1s;
+        }
+
+        .dpad-btn:active {
+            background: rgba(212, 175, 55, 0.3);
+            color: #fff;
+            transform: scale(0.95);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .ctrl-up    { grid-area: up; }
+        .ctrl-left  { grid-area: left; }
+        .ctrl-right { grid-area: right; }
+        .ctrl-down  { grid-area: down; }
+    </style>
+</head>
+<body>
+
+<div class="game-wrapper" id="wrapper">
+    <div id="score-board">EMPEROR'S WEALTH: <span id="score">0</span></div>
+    
+    <div id="main-menu" class="screen-overlay">
+        <h1>CHINESE LOONG</h1>
+        <button class="btn" onclick="initAndStart()">WAKEN THE LOONG</button>
+        <div class="instructions">
+            Control with WASD or D-Pad<br>
+            Catch Sacred Pearls • Do Not Strike Walls or Tail
+        </div>
+    </div>
+
+    <div id="restart-menu" class="screen-overlay hidden">
+        <h2>SPIRIT SLEEPS</h2>
+        <div class="final-score">Score Attained: <span id="final-score-val">0</span></div>
+        <button class="btn" onclick="startGame()">REAWAKEN SPIRIT</button>
+    </div>
+
+    <canvas id="gameCanvas" width="440" height="440"></canvas>
+
+    <div class="mobile-controls">
+        <button class="dpad-btn ctrl-up" id="btn-w">^</button>
+        <button class="dpad-btn ctrl-left" id="btn-a"><</button>
+        <button class="dpad-btn ctrl-right" id="btn-d">></button>
+        <button class="dpad-btn ctrl-down" id="btn-s">v</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreElement = document.getElementById("score");
+    const mainMenu = document.getElementById("main-menu");
+    const restartMenu = document.getElementById("restart-menu");
+    const finalScoreVal = document.getElementById("final-score-val");
+    const wrapper = document.getElementById("wrapper");
+
+    const gridSize = 22;
+    const tileCount = canvas.width / gridSize;
+
+    let dragon = [];
+    let pearl = {x: 5, y: 5};
+    let xVelocity = 1, yVelocity = 0;
+    let score = 0;
+    let gameRunning = false;
+
+    let lastLogicTime = 0;
+    const logicInterval = 110; // Слегка замедлил для плавности движения змеи
+    let animationAge = 0;
+
+    let embers = [];
+    let audioCtx = null;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function playSoftTone(freq, duration, volume, isSmooth = true) {
+        if (!audioCtx) return;
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        let filter = audioCtx.createBiquadFilter();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(freq * 1.3, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+        if (isSmooth) {
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+        } else {
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+        }
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function goLeft()  { if (xVelocity !== 1)  { xVelocity = -1; yVelocity = 0; } }
+    function goUp()    { if (yVelocity !== 1)  { xVelocity = 0;  yVelocity = -1; } }
+    function goRight() { if (xVelocity !== -1) { xVelocity = 1;  yVelocity = 0; } }
+    function goDown()  { if (yVelocity !== -1) { xVelocity = 0;  yVelocity = 1; } }
+
+    window.addEventListener("keydown", e => {
+        if (!gameRunning) return;
+        const key = e.key.toLowerCase(); 
+
+        if (key === 'a' || key === 'ф') { goLeft();  e.preventDefault(); }
+        if (key === 'w' || key === 'ц') { goUp();    e.preventDefault(); }
+        if (key === 'd' || key === 'в') { goRight(); e.preventDefault(); }
+        if (key === 's' || key === 'ы') { goDown();  e.preventDefault(); }
+    });
+
+    document.getElementById("btn-a").addEventListener("touchstart", e => { e.preventDefault(); goLeft(); });
+    document.getElementById("btn-w").addEventListener("touchstart", e => { e.preventDefault(); goUp(); });
+    document.getElementById("btn-d").addEventListener("touchstart", e => { e.preventDefault(); goRight(); });
+    document.getElementById("btn-s").addEventListener("touchstart", e => { e.preventDefault(); goDown(); });
+
+    function initAndStart() {
+        initAudio();
+        startGame();
+    }
+
+    function startGame() {
+        // Удлиненное начальное тело для китайского дракона
+        dragon = [
+            {x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}, 
+            {x: 7, y: 10}, {x: 6, y: 10}, {x: 5, y: 10}
+        ];
+        xVelocity = 1; yVelocity = 0;
+        score = 0;
+        embers = [];
+        scoreElement.innerText = score;
+        generatePearl();
+
+        mainMenu.classList.add("hidden");
+        restartMenu.classList.add("hidden");
+        
+        gameRunning = true;
+        lastLogicTime = performance.now();
+        requestAnimationFrame(gameLoop);
+    }
+
+    function gameOver() {
+        gameRunning = false;
+        finalScoreVal.innerText = score;
+        wrapper.classList.add("shake");
+        
+        playSoftTone(110, 0.6, 0.2, false);
+        playSoftTone(80, 0.8, 0.15, true);
+        
+        setTimeout(() => wrapper.classList.remove("shake"), 400);
+        restartMenu.classList.remove("hidden");
+    }
+
+    function gameLoop(currentTime) {
+        if (!gameRunning) return;
+        requestAnimationFrame(gameLoop);
+
+        animationAge += 0.2;
+        updateEmbers();
+
+        const deltaTime = currentTime - lastLogicTime;
+        if (deltaTime >= logicInterval) {
+            moveDragon();
+            if (checkCollision()) {
+                gameOver();
+                return;
+            }
+            lastLogicTime = currentTime - (deltaTime % logicInterval);
+        }
+        render();
+    }
+
+    function moveDragon() {
+        const head = {x: dragon[0].x + xVelocity, y: dragon[0].y + yVelocity};
+        dragon.unshift(head);
+
+        if (dragon[0].x === pearl.x && dragon[0].y === pearl.y) {
+            score += 1;
+            scoreElement.innerText = score;
+            
+            playSoftTone(440, 0.1, 0.12);
+            setTimeout(() => playSoftTone(554.37, 0.12, 0.10), 40);
+
+            for(let i=0; i<12; i++) {
+                embers.push({
+                    x: pearl.x * gridSize + gridSize/2,
+                    y: pearl.y * gridSize + gridSize/2,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    alpha: 1,
+                    size: Math.random() * 3 + 1,
+                    color: Math.random() > 0.5 ? "#d4af37" : "#ff3333"
+                });
+            }
+            generatePearl();
+        } else {
+            dragon.pop();
+        }
+
+        // Постоянный след из духовных искр за хвостом
+        if(Math.random() > 0.2) {
+            let tailPart = dragon[dragon.length - 1];
+            embers.push({
+                x: tailPart.x * gridSize + gridSize/2,
+                y: tailPart.y * gridSize + gridSize/2,
+                vx: (Math.random() - 0.5) * 1,
+                vy: (Math.random() - 0.5) * 1,
+                alpha: 0.7,
+                size: Math.random() * 2 + 1,
+                color: "#ffaa00"
+            });
+        }
+    }
+
+    function checkCollision() {
+        const head = dragon[0];
+        if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) return true;
+        for (let i = 1; i < dragon.length; i++) {
+            if (dragon[i].x === head.x && dragon[i].y === head.y) return true;
+        }
+        return false;
+    }
+
+    function generatePearl() {
+        pearl.x = Math.floor(Math.random() * tileCount);
+        pearl.y = Math.floor(Math.random() * tileCount);
+        for (let part of dragon) {
+            if (part.x === pearl.x && part.y === pearl.y) { generatePearl(); break; }
+        }
+    }
+
+    function updateEmbers() {
+        for (let i = embers.length - 1; i >= 0; i--) {
+            let p = embers[i];
+            p.x += p.vx; p.y += p.vy;
+            p.alpha -= 0.025;
+            if (p.alpha <= 0) embers.splice(i, 1);
+        }
+    }
+
+    function render() {
+        ctx.fillStyle = "#030206";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Магические искры
+        embers.forEach(p => {
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.shadowColor = p.color;
+            ctx.shadowBlur = 4;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.restore();
+        });
+
+        // Пылающая жемчужина мудрости
+        const pearlX = pearl.x * gridSize + gridSize / 2;
+        const pearlY = pearl.y * gridSize + gridSize / 2;
+        ctx.save();
+        let pearlGrad = ctx.createRadialGradient(pearlX, pearlY, 1, pearlX, pearlY, 9);
+        pearlGrad.addColorStop(0, '#ffffff');
+        pearlGrad.addColorStop(0.4, '#e6b800');
+        pearlGrad.addColorStop(1, 'rgba(204,0,0,0.4)');
+        ctx.shadowColor = "#ffbb00";
+        ctx.shadowBlur = 12 + Math.sin(animationAge) * 4;
+        ctx.fillStyle = pearlGrad;
+        ctx.beginPath();
+        ctx.arc(pearlX, pearlY, 8, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.restore();
+
+        // Отрисовка Loong (Китайского змееподобного дракона)
+        dragon.forEach((part, index) => {
+            const centerX = part.x * gridSize + gridSize / 2;
+            const centerY = part.y * gridSize + gridSize / 2;
+
+            // Расчет сужения тела к хвосту
+            let sizeRatio = 1 - (index / dragon.length) * 0.5;
+            let currentRadius = (gridSize / 2) * sizeRatio;
+
+            // Эффект волнообразного извивания тела
+            let wave = Math.sin(animationAge + index * 0.6) * 2.5 * (index / dragon.length);
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+
+            let headingAngle = 0;
+            if (xVelocity === 1) headingAngle = 0;
+            if (xVelocity === -1) headingAngle = Math.PI;
+            if (yVelocity === 1) headingAngle = Math.PI / 2;
+            if (yVelocity === -1) headingAngle = -Math.PI / 2;
+            ctx.rotate(headingAngle);
+            ctx.translate(0, wave); // Применяем волну смещения
+
+            if (index === 0) {
+                // ГОЛОВА КИТАЙСКОГО ДРАКОНА
+                let headGrad = ctx.createRadialGradient(-2, 0, 2, 2, 0, 13);
+                headGrad.addColorStop(0, '#e62e2e');
+                headGrad.addColorStop(0.7, '#990000');
+                headGrad.addColorStop(1, '#2b0000');
+                ctx.fillStyle = headGrad;
+                ctx.shadowColor = "#ff3333";
+                ctx.shadowBlur = 6;
+
+                // Прорисовка морды с усами
+                ctx.beginPath();
+                ctx.moveTo(-6, -7);
+                ctx.lineTo(6, -6);
+                ctx.lineTo(13, -3);
+                ctx.lineTo(13, 3);
+                ctx.lineTo(6, 6);
+                ctx.lineTo(-6, 7);
+                ctx.closePath();
+                ctx.fill();
+
+                // Императорские золотые рога
+                ctx.strokeStyle = "#d4af37";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(-4, -5); ctx.lineTo(-12, -11); ctx.lineTo(-10, -5);
+                ctx.moveTo(-4, 5);  ctx.lineTo(-12, 11);  ctx.lineTo(-10, 5);
+                ctx.stroke();
+
+                // Зеленые неоновые глаза
+                ctx.fillStyle = "#00ffcc";
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = "#00ffcc";
+                ctx.beginPath();
+                ctx.arc(4, -3, 2, 0, 2*Math.PI);
+                ctx.arc(4, 3, 2, 0, 2*Math.PI);
+                ctx.fill();
+
+                // Длинные усы
+                ctx.strokeStyle = "#ffb300";
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(10, -2); ctx.quadraticCurveTo(16, -10, 22, -6);
+                ctx.moveTo(10, 2);  ctx.quadraticCurveTo(16, 10, 22, 6);
+                ctx.stroke();
+            } 
+            else {
+                // СЕГМЕНТЫ ТЕЛА (ЧЕШУЯ)
+                let bodyGrad = ctx.createRadialGradient(0, 0, 1, 0, 0, currentRadius);
+                if (index % 2 === 0) {
+                    bodyGrad.addColorStop(0, '#cc1111');
+                    bodyGrad.addColorStop(0.8, '#7a0000');
+                    bodyGrad.addColorStop(1, '#380000');
+                } else {
+                    bodyGrad.addColorStop(0, '#b30000');
+                    bodyGrad.addColorStop(0.8, '#5c0000');
+                    bodyGrad.addColorStop(1, '#240000');
+                }
+                ctx.fillStyle = bodyGrad;
+                ctx.beginPath();
+                ctx.arc(0, 0, currentRadius + 1, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // ЗОЛОТАЯ ОГНЕННАЯ ГРИВА НА СПИНЕ
+                ctx.fillStyle = "#d4af37";
+                ctx.beginPath();
+                ctx.moveTo(-currentRadius, -currentRadius - 1);
+                ctx.lineTo(0, -currentRadius - 5);
+                ctx.lineTo(currentRadius, -currentRadius - 1);
+                ctx.closePath();
+                ctx.fill();
+
+                // Текстура золотых чешуек внутри сегмента
+                ctx.fillStyle = "rgba(212, 175, 55, 0.4)";
+                ctx.beginPath();
+                ctx.arc(-1, 0, currentRadius * 0.4, 0, Math.PI);
+                ctx.fill();
+            }
+            ctx.restore();
+        });
+    }
+
+    render();
+</script>
+</body>
+</html>
