@@ -2,585 +2,560 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rise of the Loong</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Bird - Vibe Music Edition</title>
+    <!-- Подключаем библиотеку Adsgram -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700&display=swap');
-
         body {
-            background: #020205;
-            color: #ebd3ff;
-            font-family: 'Cinzel', 'Georgia', serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
             margin: 0;
-            overflow: hidden;
-            user-select: none;
-            touch-action: none;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle inside, transparent 40%, rgba(2, 2, 5, 0.98) 100%),
-                        url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.04"/%3E%3C/svg%3E');
-            animation: drift 90s linear infinite;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        @keyframes drift {
-            0% { transform: translate(-25%, -25%) rotate(0deg); }
-            100% { transform: translate(-25%, -25%) rotate(360deg); }
-        }
-
-        .game-wrapper {
-            position: relative;
-            background: linear-gradient(135deg, rgba(26, 9, 9, 0.85) 0%, rgba(5, 2, 10, 0.98) 100%);
-            padding: 20px;
-            border-radius: 20px;
-            border: 2px solid #d4af37;
-            box-shadow: 0 0 50px rgba(212, 175, 55, 0.15), inset 0 0 30px rgba(0,0,0,0.9);
-            z-index: 2;
+            background-color: #020208;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
-        .shake {
-            animation: shakeFX 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
-
-        @keyframes shakeFX {
-            10%, 90% { transform: translate3d(-2px, 0, 0); }
-            20%, 80% { transform: translate3d(4px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-            40%, 60% { transform: translate3d(6px, 0, 0); }
-        }
-
-        #score-board {
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-            color: #d4af37;
-            text-align: center;
-            font-weight: 700;
-            letter-spacing: 4px;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+        #game-container {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            box-shadow: 0 0 40px rgba(127, 0, 255, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         canvas {
-            background-color: #040207;
             display: block;
-            border-radius: 10px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            max-width: 90vw;
-            max-height: 90vw;
         }
 
-        .screen-overlay {
+        .overlay {
             position: absolute;
-            top: 20px; left: 20px;
-            right: 20px; bottom: 20px;
-            border-radius: 10px;
-            background: rgba(4, 2, 7, 0.96);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            background: rgba(5, 2, 15, 0.75);
+            backdrop-filter: blur(3px);
+            transition: opacity 0.2s ease;
             z-index: 10;
-            backdrop-filter: blur(5px);
         }
-
-        #main-menu, #restart-menu {
-            height: 440px;
-            width: 440px;
-        }
-
-        @media (max-width: 480px) {
-            #main-menu, #restart-menu {
-                width: calc(100% - 40px);
-                height: calc(100% - 40px);
-            }
-        }
-
-        .hidden { display: none !important; }
 
         h1 {
-            font-family: 'Cinzel Decorative', serif;
-            color: #cc2929;
-            margin: 0 0 15px 0;
-            font-size: 2.2rem;
-            letter-spacing: 3px;
-            text-shadow: 0 0 25px rgba(204, 41, 41, 0.6);
+            color: #00ffff;
+            font-size: 2.8rem;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px #7f00ff, 0 0 30px #00ffff;
+            letter-spacing: 4px;
+            font-weight: 900;
+        }
+
+        p {
+            color: #b3a0cd;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
             text-align: center;
-        }
-
-        h2 {
-            font-family: 'Cinzel Decorative', serif;
-            color: #8a1c1c;
-            margin: 0 0 10px 0;
-            font-size: 2rem;
-            text-shadow: 0 0 15px rgba(204, 41, 41, 0.3);
-        }
-
-        .final-score {
-            font-size: 1.1rem;
-            color: #d4af37;
-            margin-bottom: 35px;
-            letter-spacing: 1px;
+            padding: 0 30px;
+            line-height: 1.4;
         }
 
         .btn {
-            background: transparent;
-            color: #d4af37;
-            border: 2px solid #d4af37;
-            padding: 14px 40px;
-            font-size: 1rem;
-            font-family: inherit;
+            padding: 12px 40px;
+            font-size: 1.3rem;
             font-weight: bold;
-            border-radius: 4px;
+            color: #fff;
+            background: linear-gradient(45deg, #ff007f, #7f00ff);
+            border: none;
+            border-radius: 25px;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
-            transition: all 0.3s ease;
-            letter-spacing: 2px;
+            box-shadow: 0 0 20px #ff007f;
+            transition: transform 0.1s, box-shadow 0.2s;
+            letter-spacing: 1px;
+            z-index: 20;
         }
 
         .btn:hover {
-            background: #d4af37;
-            color: #040207;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0 0 30px #7f00ff;
         }
 
-        .instructions {
-            margin-top: 15px;
-            font-size: 0.8rem;
-            color: #bfa473;
-            text-align: center;
-            line-height: 1.5;
-            letter-spacing: 1px;
-        }
-
-        .mobile-controls {
-            display: none;
-            grid-template-areas: 
-                ".    up    ."
-                "left .     right"
-                ".    down  .";
-            grid-gap: 8px;
-            margin-top: 20px;
-            width: 180px;
-            height: 180px;
+        #score-container {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
             z-index: 5;
         }
 
-        @media (pointer: coarse) {
-            .mobile-controls {
-                display: grid;
-            }
-        }
-
-        .dpad-btn {
-            background: rgba(212, 175, 55, 0.05);
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            border-radius: 12px;
-            color: #d4af37;
-            font-size: 1.5rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            transition: background 0.1s, transform 0.1s;
-        }
-
-        .dpad-btn:active {
-            background: rgba(212, 175, 55, 0.3);
+        #score-display {
             color: #fff;
-            transform: scale(0.95);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+            font-size: 2.8rem;
+            font-weight: bold;
+            text-shadow: 0 0 12px #00ffff;
+            font-family: monospace;
+            display: none;
         }
 
-        .ctrl-up    { grid-area: up; }
-        .ctrl-left  { grid-area: left; }
-        .ctrl-right { grid-area: right; }
-        .ctrl-down  { grid-area: down; }
+        #multiplier-badge {
+            background: #00ff66;
+            color: #000;
+            font-weight: bold;
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            box-shadow: 0 0 15px #00ff66;
+            display: none;
+            letter-spacing: 1px;
+        }
+
+        .hide {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
 
-<div class="game-wrapper" id="wrapper">
-    <div id="score-board">EMPEROR'S WEALTH: <span id="score">0</span></div>
-    
-    <div id="main-menu" class="screen-overlay">
-        <h1>CHINESE LOONG</h1>
-        <button class="btn" onclick="initAndStart()">WAKEN THE LOONG</button>
-        <div class="instructions">
-            Control with WASD or D-Pad<br>
-            Catch Sacred Pearls • Do Not Strike Walls or Tail
+    <div id="game-container">
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        
+        <div id="score-container">
+            <div id="score-display">0</div>
+            <div id="multiplier-badge">2X POINTS ACTIVE</div>
+        </div>
+
+        <div id="main-menu" class="overlay">
+            <h1>GALAXY VIBE</h1>
+            <p>Catch the rhythm. Collect 2X chips (30%) before 100 points. No back-to-back spawns.</p>
+            <button class="btn" onclick="startGame(event)">FLY</button>
+        </div>
+
+        <div id="game-over" class="overlay hide">
+            <h1 style="color: #ff007f; text-shadow: 0 0 15px #ff007f;">SESSION END</h1>
+            <p id="final-score" style="color: #00ffff; font-size: 1.2rem;"></p>
+            <button class="btn" onclick="resetGame(event)">RESTART</button>
         </div>
     </div>
 
-    <div id="restart-menu" class="screen-overlay hidden">
-        <h2>SPIRIT SLEEPS</h2>
-        <div class="final-score">Score Attained: <span id="final-score-val">0</span></div>
-        <button class="btn" onclick="startGame()">REAWAKEN SPIRIT</button>
-    </div>
+    <script>
+        // Настройка рекламы Adsgram
+        const AdController = window.Adsgram.init({ blockId: "35654" });
 
-    <canvas id="gameCanvas" width="440" height="440"></canvas>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const mainMenu = document.getElementById('main-menu');
+        const gameOverScreen = document.getElementById('game-over');
+        const scoreDisplay = document.getElementById('score-display');
+        const multiplierBadge = document.getElementById('multiplier-badge');
+        const finalScore = document.getElementById('final-score');
 
-    <div class="mobile-controls">
-        <button class="dpad-btn ctrl-up" id="btn-w">^</button>
-        <button class="dpad-btn ctrl-left" id="btn-a"><</button>
-        <button class="dpad-btn ctrl-right" id="btn-d">></button>
-        <button class="dpad-btn ctrl-down" id="btn-s">v</button>
-    </div>
-</div>
+        let gameState = 'MENU'; 
+        let score = 0;
+        let animationFrameId;
 
-<script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const scoreElement = document.getElementById("score");
-    const mainMenu = document.getElementById("main-menu");
-    const restartMenu = document.getElementById("restart-menu");
-    const finalScoreVal = document.getElementById("final-score-val");
-    const wrapper = document.getElementById("wrapper");
+        const GRAVITY = 0.25;
+        const JUMP = -5.5;
+        const PIPE_SPEED = 2.5;
+        const PIPE_SPAWN_RATE = 90; 
+        const GAP_SIZE = 150; 
 
-    const gridSize = 22;
-    const tileCount = canvas.width / gridSize;
-
-    let dragon = [];
-    let pearl = {x: 5, y: 5};
-    let xVelocity = 1, yVelocity = 0;
-    let score = 0;
-    let gameRunning = false;
-
-    let lastLogicTime = 0;
-    const logicInterval = 110; // Слегка замедлил для плавности движения змеи
-    let animationAge = 0;
-
-    let embers = [];
-    let audioCtx = null;
-
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-    }
-
-    function playSoftTone(freq, duration, volume, isSmooth = true) {
-        if (!audioCtx) return;
-        let osc = audioCtx.createOscillator();
-        let gain = audioCtx.createGain();
-        let filter = audioCtx.createBiquadFilter();
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(freq * 1.3, audioCtx.currentTime);
-
-        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-        if (isSmooth) {
-            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-        } else {
-            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
-        }
-
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-    }
-
-    function goLeft()  { if (xVelocity !== 1)  { xVelocity = -1; yVelocity = 0; } }
-    function goUp()    { if (yVelocity !== 1)  { xVelocity = 0;  yVelocity = -1; } }
-    function goRight() { if (xVelocity !== -1) { xVelocity = 1;  yVelocity = 0; } }
-    function goDown()  { if (yVelocity !== -1) { xVelocity = 0;  yVelocity = 1; } }
-
-    window.addEventListener("keydown", e => {
-        if (!gameRunning) return;
-        const key = e.key.toLowerCase(); 
-
-        if (key === 'a' || key === 'ф') { goLeft();  e.preventDefault(); }
-        if (key === 'w' || key === 'ц') { goUp();    e.preventDefault(); }
-        if (key === 'd' || key === 'в') { goRight(); e.preventDefault(); }
-        if (key === 's' || key === 'ы') { goDown();  e.preventDefault(); }
-    });
-
-    document.getElementById("btn-a").addEventListener("touchstart", e => { e.preventDefault(); goLeft(); });
-    document.getElementById("btn-w").addEventListener("touchstart", e => { e.preventDefault(); goUp(); });
-    document.getElementById("btn-d").addEventListener("touchstart", e => { e.preventDefault(); goRight(); });
-    document.getElementById("btn-s").addEventListener("touchstart", e => { e.preventDefault(); goDown(); });
-
-    function initAndStart() {
-        initAudio();
-        startGame();
-    }
-
-    function startGame() {
-        // Удлиненное начальное тело для китайского дракона
-        dragon = [
-            {x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}, 
-            {x: 7, y: 10}, {x: 6, y: 10}, {x: 5, y: 10}
-        ];
-        xVelocity = 1; yVelocity = 0;
-        score = 0;
-        embers = [];
-        scoreElement.innerText = score;
-        generatePearl();
-
-        mainMenu.classList.add("hidden");
-        restartMenu.classList.add("hidden");
+        let rocket;
+        let pipes = [];
+        let stars = [];
+        let nebulaClouds = [];
+        let chips = [];
+        let frameCount = 0;
         
-        gameRunning = true;
-        lastLogicTime = performance.now();
-        requestAnimationFrame(gameLoop);
-    }
+        let doublePointsTimer = 0; 
+        let isDoublePoints = false;
+        let chipsSpawnedThisRun = 0; 
+        let wasLastPipeAChip = false; 
 
-    function gameOver() {
-        gameRunning = false;
-        finalScoreVal.innerText = score;
-        wrapper.classList.add("shake");
-        
-        playSoftTone(110, 0.6, 0.2, false);
-        playSoftTone(80, 0.8, 0.15, true);
-        
-        setTimeout(() => wrapper.classList.remove("shake"), 400);
-        restartMenu.classList.remove("hidden");
-    }
-
-    function gameLoop(currentTime) {
-        if (!gameRunning) return;
-        requestAnimationFrame(gameLoop);
-
-        animationAge += 0.2;
-        updateEmbers();
-
-        const deltaTime = currentTime - lastLogicTime;
-        if (deltaTime >= logicInterval) {
-            moveDragon();
-            if (checkCollision()) {
-                gameOver();
-                return;
-            }
-            lastLogicTime = currentTime - (deltaTime % logicInterval);
-        }
-        render();
-    }
-
-    function moveDragon() {
-        const head = {x: dragon[0].x + xVelocity, y: dragon[0].y + yVelocity};
-        dragon.unshift(head);
-
-        if (dragon[0].x === pearl.x && dragon[0].y === pearl.y) {
-            score += 1;
-            scoreElement.innerText = score;
+        function initGalaxyBackground() {
+            stars = [];
+            nebulaClouds = [];
             
-            playSoftTone(440, 0.1, 0.12);
-            setTimeout(() => playSoftTone(554.37, 0.12, 0.10), 40);
-
-            for(let i=0; i<12; i++) {
-                embers.push({
-                    x: pearl.x * gridSize + gridSize/2,
-                    y: pearl.y * gridSize + gridSize/2,
-                    vx: (Math.random() - 0.5) * 4,
-                    vy: (Math.random() - 0.5) * 4,
-                    alpha: 1,
-                    size: Math.random() * 3 + 1,
-                    color: Math.random() > 0.5 ? "#d4af37" : "#ff3333"
+            for (let i = 0; i < 5; i++) {
+                nebulaClouds.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 80 + 60,
+                    color: i % 2 === 0 ? 'rgba(127, 0, 255, 0.04)' : 'rgba(255, 0, 127, 0.03)',
+                    speed: Math.random() * 0.1 + 0.05
                 });
             }
-            generatePearl();
-        } else {
-            dragon.pop();
+
+            for (let i = 0; i < 70; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 0.5,
+                    speed: Math.random() * 0.4 + 0.1,
+                    pulseSpeed: Math.random() * 0.03 + 0.01,
+                    phase: Math.random() * Math.PI
+                });
+            }
         }
 
-        // Постоянный след из духовных искр за хвостом
-        if(Math.random() > 0.2) {
-            let tailPart = dragon[dragon.length - 1];
-            embers.push({
-                x: tailPart.x * gridSize + gridSize/2,
-                y: tailPart.y * gridSize + gridSize/2,
-                vx: (Math.random() - 0.5) * 1,
-                vy: (Math.random() - 0.5) * 1,
-                alpha: 0.7,
-                size: Math.random() * 2 + 1,
-                color: "#ffaa00"
+        class Rocket {
+            constructor() {
+                this.x = 80;
+                this.y = 280;
+                this.velocity = 0;
+                this.radius = 14;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                let angle = Math.min(Math.max(this.velocity * 0.07, -0.5), 0.5);
+                if (gameState === 'READY') angle = 0;
+                ctx.rotate(angle);
+
+                if (isDoublePoints) {
+                    ctx.shadowBlur = 25;
+                    ctx.shadowColor = '#00ff66';
+                } else {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#00ffff';
+                }
+
+                if (gameState === 'PLAYING') {
+                    ctx.fillStyle = isDoublePoints ? '#00ff66' : (Math.random() > 0.5 ? '#ff007f' : '#ffaa00');
+                    ctx.beginPath();
+                    ctx.moveTo(-15, 0);
+                    ctx.lineTo(-28 - Math.random() * 12, -4);
+                    ctx.lineTo(-28 - Math.random() * 12, 4);
+                    ctx.fill();
+                }
+
+                ctx.fillStyle = isDoublePoints ? '#b3ffcc' : '#00ffff';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 18, 10, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(6, -2, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = isDoublePoints ? '#00cc44' : '#7f00ff';
+                ctx.fillRect(-12, -12, 6, 4);
+                ctx.fillRect(-12, 8, 6, 4);
+
+                ctx.restore();
+            }
+
+            update() {
+                this.velocity += GRAVITY;
+                this.y += this.velocity;
+
+                if (this.y + this.radius > canvas.height) {
+                    this.y = canvas.height - this.radius;
+                    endGame();
+                }
+                if (this.y - this.radius < 0) {
+                    this.y = this.radius;
+                    this.velocity = 0;
+                }
+            }
+
+            jump() {
+                this.velocity = JUMP;
+            }
+        }
+
+        class Pipe {
+            constructor() {
+                this.x = canvas.width;
+                this.topHeight = Math.floor(Math.random() * (canvas.height - GAP_SIZE - 120)) + 60;
+                this.bottomY = this.topHeight + GAP_SIZE;
+                this.width = 60;
+                this.passed = false;
+            }
+
+            draw() {
+                let gradient = ctx.createLinearGradient(this.x, 0, this.x + this.width, 0);
+                gradient.addColorStop(0, '#4d0099');
+                gradient.addColorStop(0.5, '#990066');
+                gradient.addColorStop(1, '#4d0099');
+
+                ctx.fillStyle = gradient;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = 'rgba(255, 0, 127, 0.4)';
+
+                ctx.fillRect(this.x, 0, this.width, this.topHeight);
+                ctx.fillRect(this.x, this.bottomY, this.width, canvas.height - this.bottomY);
+                ctx.shadowBlur = 0;
+            }
+
+            update() {
+                this.x -= PIPE_SPEED;
+            }
+
+            collidesWith(bird) {
+                if (bird.x + bird.radius > this.x && bird.x - bird.radius < this.x + this.width) {
+                    if (bird.y - bird.radius < this.topHeight || bird.y + bird.radius > this.bottomY) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        class Chip {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 12;
+                this.alive = true;
+            }
+
+            draw() {
+                if (!this.alive) return;
+                ctx.save();
+                
+                let floatY = this.y + Math.sin(Date.now() * 0.008) * 5;
+
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#00ff66';
+                
+                ctx.fillStyle = '#00ff66';
+                ctx.beginPath();
+                ctx.arc(this.x, floatY, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#05020f';
+                ctx.beginPath();
+                ctx.arc(this.x, floatY, this.radius - 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 9px monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('2X', this.x, floatY);
+
+                ctx.restore();
+            }
+
+            update() {
+                this.x -= PIPE_SPEED;
+            }
+
+            collidesWith(bird) {
+                if (!this.alive) return false;
+                let floatY = this.y + Math.sin(Date.now() * 0.008) * 5;
+                let dist = Math.hypot(bird.x - this.x, bird.y - floatY);
+                return dist < bird.radius + this.radius;
+            }
+        }
+
+        function drawBackground() {
+            let pulse = Math.sin(Date.now() * 0.001) * 0.05;
+            let bgGrad = ctx.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 10,
+                canvas.width / 2, canvas.height / 2, canvas.height
+            );
+            bgGrad.addColorStop(0, '#21003f');
+            bgGrad.addColorStop(0.6 + pulse, '#0a031c');
+            bgGrad.addColorStop(1, '#030107');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            nebulaClouds.forEach(cloud => {
+                ctx.fillStyle = cloud.color;
+                ctx.beginPath();
+                ctx.arc(cloud.x, cloud.y, cloud.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (gameState === 'PLAYING') {
+                    cloud.x -= cloud.speed;
+                    if (cloud.x + cloud.radius < 0) cloud.x = canvas.width + cloud.radius;
+                }
+            });
+
+            stars.forEach(star => {
+                star.phase += star.pulseSpeed;
+                let alpha = 0.3 + Math.abs(Math.sin(star.phase)) * 0.7;
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+
+                if (gameState === 'PLAYING') {
+                    star.x -= star.speed;
+                    if (star.x < 0) {
+                        star.x = canvas.width;
+                        star.y = Math.random() * canvas.height;
+                    }
+                }
             });
         }
-    }
 
-    function checkCollision() {
-        const head = dragon[0];
-        if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) return true;
-        for (let i = 1; i < dragon.length; i++) {
-            if (dragon[i].x === head.x && dragon[i].y === head.y) return true;
-        }
-        return false;
-    }
+        function gameLoop() {
+            cancelAnimationFrame(animationFrameId);
+            drawBackground();
 
-    function generatePearl() {
-        pearl.x = Math.floor(Math.random() * tileCount);
-        pearl.y = Math.floor(Math.random() * tileCount);
-        for (let part of dragon) {
-            if (part.x === pearl.x && part.y === pearl.y) { generatePearl(); break; }
-        }
-    }
+            if (gameState === 'PLAYING') {
+                frameCount++;
 
-    function updateEmbers() {
-        for (let i = embers.length - 1; i >= 0; i--) {
-            let p = embers[i];
-            p.x += p.vx; p.y += p.vy;
-            p.alpha -= 0.025;
-            if (p.alpha <= 0) embers.splice(i, 1);
-        }
-    }
-
-    function render() {
-        ctx.fillStyle = "#030206";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Магические искры
-        embers.forEach(p => {
-            ctx.save();
-            ctx.globalAlpha = p.alpha;
-            ctx.fillStyle = p.color;
-            ctx.shadowColor = p.color;
-            ctx.shadowBlur = 4;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, 2*Math.PI);
-            ctx.fill();
-            ctx.restore();
-        });
-
-        // Пылающая жемчужина мудрости
-        const pearlX = pearl.x * gridSize + gridSize / 2;
-        const pearlY = pearl.y * gridSize + gridSize / 2;
-        ctx.save();
-        let pearlGrad = ctx.createRadialGradient(pearlX, pearlY, 1, pearlX, pearlY, 9);
-        pearlGrad.addColorStop(0, '#ffffff');
-        pearlGrad.addColorStop(0.4, '#e6b800');
-        pearlGrad.addColorStop(1, 'rgba(204,0,0,0.4)');
-        ctx.shadowColor = "#ffbb00";
-        ctx.shadowBlur = 12 + Math.sin(animationAge) * 4;
-        ctx.fillStyle = pearlGrad;
-        ctx.beginPath();
-        ctx.arc(pearlX, pearlY, 8, 0, 2*Math.PI);
-        ctx.fill();
-        ctx.restore();
-
-        // Отрисовка Loong (Китайского змееподобного дракона)
-        dragon.forEach((part, index) => {
-            const centerX = part.x * gridSize + gridSize / 2;
-            const centerY = part.y * gridSize + gridSize / 2;
-
-            // Расчет сужения тела к хвосту
-            let sizeRatio = 1 - (index / dragon.length) * 0.5;
-            let currentRadius = (gridSize / 2) * sizeRatio;
-
-            // Эффект волнообразного извивания тела
-            let wave = Math.sin(animationAge + index * 0.6) * 2.5 * (index / dragon.length);
-
-            ctx.save();
-            ctx.translate(centerX, centerY);
-
-            let headingAngle = 0;
-            if (xVelocity === 1) headingAngle = 0;
-            if (xVelocity === -1) headingAngle = Math.PI;
-            if (yVelocity === 1) headingAngle = Math.PI / 2;
-            if (yVelocity === -1) headingAngle = -Math.PI / 2;
-            ctx.rotate(headingAngle);
-            ctx.translate(0, wave); // Применяем волну смещения
-
-            if (index === 0) {
-                // ГОЛОВА КИТАЙСКОГО ДРАКОНА
-                let headGrad = ctx.createRadialGradient(-2, 0, 2, 2, 0, 13);
-                headGrad.addColorStop(0, '#e62e2e');
-                headGrad.addColorStop(0.7, '#990000');
-                headGrad.addColorStop(1, '#2b0000');
-                ctx.fillStyle = headGrad;
-                ctx.shadowColor = "#ff3333";
-                ctx.shadowBlur = 6;
-
-                // Прорисовка морды с усами
-                ctx.beginPath();
-                ctx.moveTo(-6, -7);
-                ctx.lineTo(6, -6);
-                ctx.lineTo(13, -3);
-                ctx.lineTo(13, 3);
-                ctx.lineTo(6, 6);
-                ctx.lineTo(-6, 7);
-                ctx.closePath();
-                ctx.fill();
-
-                // Императорские золотые рога
-                ctx.strokeStyle = "#d4af37";
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(-4, -5); ctx.lineTo(-12, -11); ctx.lineTo(-10, -5);
-                ctx.moveTo(-4, 5);  ctx.lineTo(-12, 11);  ctx.lineTo(-10, 5);
-                ctx.stroke();
-
-                // Зеленые неоновые глаза
-                ctx.fillStyle = "#00ffcc";
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = "#00ffcc";
-                ctx.beginPath();
-                ctx.arc(4, -3, 2, 0, 2*Math.PI);
-                ctx.arc(4, 3, 2, 0, 2*Math.PI);
-                ctx.fill();
-
-                // Длинные усы
-                ctx.strokeStyle = "#ffb300";
-                ctx.lineWidth = 1.5;
-                ctx.beginPath();
-                ctx.moveTo(10, -2); ctx.quadraticCurveTo(16, -10, 22, -6);
-                ctx.moveTo(10, 2);  ctx.quadraticCurveTo(16, 10, 22, 6);
-                ctx.stroke();
-            } 
-            else {
-                // СЕГМЕНТЫ ТЕЛА (ЧЕШУЯ)
-                let bodyGrad = ctx.createRadialGradient(0, 0, 1, 0, 0, currentRadius);
-                if (index % 2 === 0) {
-                    bodyGrad.addColorStop(0, '#cc1111');
-                    bodyGrad.addColorStop(0.8, '#7a0000');
-                    bodyGrad.addColorStop(1, '#380000');
-                } else {
-                    bodyGrad.addColorStop(0, '#b30000');
-                    bodyGrad.addColorStop(0.8, '#5c0000');
-                    bodyGrad.addColorStop(1, '#240000');
+                if (isDoublePoints) {
+                    doublePointsTimer--;
+                    if (doublePointsTimer <= 0) {
+                        isDoublePoints = false;
+                        multiplierBadge.style.display = 'none';
+                    }
                 }
-                ctx.fillStyle = bodyGrad;
-                ctx.beginPath();
-                ctx.arc(0, 0, currentRadius + 1, 0, 2 * Math.PI);
-                ctx.fill();
 
-                // ЗОЛОТАЯ ОГНЕННАЯ ГРИВА НА СПИНЕ
-                ctx.fillStyle = "#d4af37";
-                ctx.beginPath();
-                ctx.moveTo(-currentRadius, -currentRadius - 1);
-                ctx.lineTo(0, -currentRadius - 5);
-                ctx.lineTo(currentRadius, -currentRadius - 1);
-                ctx.closePath();
-                ctx.fill();
+                if (score >= 100 && chips.length > 0) {
+                    chips = [];
+                }
 
-                // Текстура золотых чешуек внутри сегмента
-                ctx.fillStyle = "rgba(212, 175, 55, 0.4)";
-                ctx.beginPath();
-                ctx.arc(-1, 0, currentRadius * 0.4, 0, Math.PI);
-                ctx.fill();
+                if (frameCount % PIPE_SPAWN_RATE === 0) {
+                    let newPipe = new Pipe();
+                    pipes.push(newPipe);
+
+                    if (score < 100) {
+                        let allowedToSpawn = !wasLastPipeAChip;
+                        let shouldSpawn = allowedToSpawn && ((score === 15 && chipsSpawnedThisRun === 0) || (Math.random() < 0.30));
+                        
+                        if (shouldSpawn) {
+                            let midY = newPipe.topHeight + (GAP_SIZE / 2);
+                            chips.push(new Chip(newPipe.x + 30, midY));
+                            chipsSpawnedThisRun++;
+                            wasLastPipeAChip = true; 
+                        } else {
+                            wasLastPipeAChip = false; 
+                        }
+                    }
+                }
+
+                for (let i = pipes.length - 1; i >= 0; i--) {
+                    pipes[i].update();
+                    pipes[i].draw();
+
+                    if (pipes[i].collidesWith(rocket)) {
+                        endGame();
+                        return;
+                    }
+
+                    if (!pipes[i].passed && pipes[i].x + pipes[i].width < rocket.x) {
+                        score += isDoublePoints ? 2 : 1;
+                        scoreDisplay.innerText = score;
+                        pipes[i].passed = true;
+                    }
+
+                    if (pipes[i].x + pipes[i].width < 0) pipes.splice(i, 1);
+                }
+
+                for (let i = chips.length - 1; i >= 0; i--) {
+                    chips[i].update();
+                    chips[i].draw();
+
+                    if (chips[i].collidesWith(rocket)) {
+                        chips[i].alive = false;
+                        isDoublePoints = true;
+                        doublePointsTimer = 300; 
+                        multiplierBadge.style.display = 'block';
+                        chips.splice(i, 1);
+                        continue;
+                    }
+
+                    if (chips[i].x + chips[i].radius < 0) chips.splice(i, 1);
+                }
+
+                rocket.update();
+            } else if (gameState === 'READY') {
+                rocket.y = 280 + Math.sin(Date.now() * 0.004) * 6;
+                ctx.fillStyle = '#b3a0cd';
+                ctx.font = 'bold 13px "Segoe UI", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.letterSpacing = '2px';
+                ctx.fillText('TAP TO ENTER THE FLOW', canvas.width / 2, canvas.height / 2 + 60);
             }
-            ctx.restore();
-        });
-    }
 
-    render();
-</script>
+            rocket.draw();
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function triggerJump(e) {
+            if (gameState === 'MENU' || gameState === 'GAMEOVER') return;
+
+            if (gameState === 'READY') gameState = 'PLAYING';
+            rocket.jump();
+            if (e && e.cancelable) e.preventDefault();
+        }
+
+        function handleKeyDown(e) {
+            if (e.code === 'Space') triggerJump(e);
+        }
+
+        function startGame(e) {
+            if (e) e.stopPropagation();
+            mainMenu.classList.add('hide');
+            scoreDisplay.style.display = 'block';
+            gameState = 'READY';
+        }
+
+        // Вызов показа рекламы при завершении игры
+        function endGame() {
+            gameState = 'GAMEOVER';
+            cancelAnimationFrame(animationFrameId);
+            multiplierBadge.style.display = 'none';
+            
+            // Запускаем рекламу Adsgram
+            AdController.show().then(() => {
+                // Вызовется, если реклама показана успешно
+                showGameOverScreen();
+            }).catch((err) => {
+                // Вызовется, если реклама не загрузилась или произошла ошибка
+                console.log("Ad error or skipped:", err);
+                showGameOverScreen();
+            });
+        }
+
+        function showGameOverScreen() {
+            finalScore.innerText = "Score: " + score;
+            gameOverScreen.classList.remove('hide');
+        }
+
+        function resetGame(e) {
+            if (e) e.stopPropagation();
+            cancelAnimationFrame(animationFrameId); 
+            pipes = [];
+            chips = [];
+            score = 0;
+            frameCount = 0;
+            isDoublePoints = false;
+            doublePointsTimer = 0;
+            chipsSpawnedThisRun = 0; 
+            wasLastPipeAChip = false; 
+            scoreDisplay.innerText = '0';
+            multiplierBadge.style.display = 'none';
+            rocket = new Rocket();
+            gameOverScreen.classList.add('hide');
+            gameState = 'READY';
+            gameLoop(); 
+        }
+
+        window.addEventListener('keydown', handleKeyDown);
+        canvas.addEventListener('touchstart', triggerJump, { passive: false });
+        canvas.addEventListener('mousedown', triggerJump);
+
+        initGalaxyBackground();
+        rocket = new Rocket();
+        gameLoop();
+    </script>
 </body>
 </html>
